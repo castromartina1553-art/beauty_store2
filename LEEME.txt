@@ -1,0 +1,113 @@
+Te lo explico en el orden en que probablemente te lo pregunte el profe. Una aclaración: no pude ejecutar PHP, así que antes de la defensa probá todo en XAMPP (login, crear, editar y borrar en cada módulo).
+
+## 1. La idea general
+
+Tienes 9 tablas y cada una necesita su CRUD (listar, crear, editar, borrar). En lugar de escribir 9 veces los mismos 4 archivos, hice **un solo CRUD que se adapta a cada tabla** según una configuración. Lo que cambia entre tablas (nombre, campos, tipos) está en `inc/modulos.php`. La lógica que se repite está en 4 archivos.
+
+El módulo se elige por la URL: `listado.php?m=productos`, `form.php?m=clientes&id=3`, etc.
+
+## 2. La base de datos (`beauty_store.sql`)
+
+| Tabla | Para qué sirve | Relaciones (FK) |
+|---|---|---|
+| `tipos_usuarios` | Roles (Administrador, Vendedor) | — |
+| `usuarios` | Quienes entran al sistema | → `tipos_usuarios` |
+| `categorias`, `marcas`, `proveedores` | Datos de apoyo del catálogo | — |
+| `productos` | Lo que se vende | → categoría, marca, proveedor |
+| `clientes` | Quienes compran | — |
+| `pedidos` | Cabecera de la compra | → cliente |
+| `detalle_pedido` | Productos de cada pedido | → pedido, producto |
+
+`pedidos` y `detalle_pedido` son una relación **1 a N**: un pedido tiene muchos renglones. Todas las tablas tienen `id` autoincremental como clave primaria, y las FK impiden borrar algo que está en uso (por ejemplo, una categoría con productos).
+
+## 3. Los archivos
+
+**Acceso y sesión**
+- `index.html`: formulario de login, que envía por POST a `login-usuario.php`.
+- `login-usuario.php`: busca al usuario con consulta preparada y compara la clave con `password_verify`. Si coincide, guarda en `$_SESSION` el id, nombre, usuario y tipo.
+- `session.php`: es el "portero". Si no hay sesión, te manda a `salir.php`. Está incluido en el header y en `guardar.php` y `borrar.php`.
+- `salir.php`: destruye la sesión.
+- `conexion.php`: conexión MySQLi.
+
+**El CRUD genérico**
+- `inc/modulos.php`: define cada módulo (título, ícono, grupo del menú y sus campos).
+- `listado.php` (**Read**): arma el SELECT y lo muestra en una tabla.
+- `form.php` (**Create** y **Update**, pantalla): un solo formulario para crear y editar.
+- `guardar.php` (**Create** y **Update**, lógica): hace el INSERT o el UPDATE.
+- `borrar.php` (**Delete**): hace el DELETE.
+
+**Diseño**
+- `inc/header.php` y `inc/footer.php`: menú y estructura de todas las pantallas.
+- `dashboard.php`: panel de inicio.
+
+## 4. Cómo funciona cada pieza del CRUD
+
+**`inc/modulos.php`**: cada campo se describe así:
+```php
+'precio' => ['label'=>'Precio', 'tipo'=>'decimal', 'req'=>true],
+'categoria_id' => ['label'=>'Categoría', 'tipo'=>'select', 'req'=>true,
+                   'fk'=>['tabla'=>'categorias','label'=>'nombre']],
+```
+- `tipo` decide qué input se dibuja: text, email, number, decimal, date, textarea, password, select (para una FK) o enum.
+- `req` marca si es obligatorio.
+- `fk` indica de qué tabla salen las opciones del desplegable.
+
+**`listado.php`**: recorre los campos del módulo y arma el SELECT. Para los campos `select` agrega un `LEFT JOIN`, para mostrar el **nombre** de la categoría y no el número. Los campos `password` no se muestran.
+
+**`form.php`**: si viene `id` en la URL, busca ese registro y rellena el formulario (editar). Si no viene, el formulario sale vacío (crear). Un `switch` según el `tipo` del campo decide si dibuja input, textarea o select.
+
+**`guardar.php`**: es el archivo más importante. Hace esto:
+1. Verifica que sea POST y que el token CSRF coincida.
+2. Recorre los campos, valida los obligatorios y encripta la clave con `password_hash`.
+3. Si el id es mayor que 0, hace `UPDATE`. Si no, hace `INSERT`.
+4. Usa consultas preparadas (`prepare` y `bind_param`) para evitar inyección SQL.
+5. Captura errores. Si el usuario ya existe (código 1062), muestra un mensaje claro.
+
+**`borrar.php`**: verifica POST y CSRF, no deja borrar tu propio usuario, hace `DELETE`. Si hay registros relacionados (código 1451), muestra "No se puede eliminar".
+
+## 5. Seguridad (suele preguntarla)
+
+- **Inyección SQL:** consultas preparadas.
+- **Claves:** se guardan con `password_hash`, nunca en texto plano.
+- **XSS:** todo lo que se muestra pasa por `e()` (`htmlspecialchars`).
+- **CSRF:** token en sesión que se valida al guardar y borrar.
+- **Permisos:** usuarios y tipos de usuario solo los ve el tipo 1 (Administrador).
+- **Sesión:** `session_regenerate_id` al loguear.
+
+## 6. Cómo hacer los cambios que te pida el profe
+
+**Agregar un campo a una tabla existente** (por ejemplo, fecha de vencimiento en productos). Son dos pasos:
+```sql
+ALTER TABLE productos ADD fecha_vencimiento DATE NULL;
+```
+```php
+// en inc/modulos.php, dentro de 'productos' => 'campos'
+'fecha_vencimiento' => ['label'=>'Vencimiento', 'tipo'=>'date'],
+```
+Con eso aparece solo en el listado, el formulario y el guardado.
+
+**Quitar un campo:** borrar su línea en `modulos.php` (y la columna en la base si lo piden).
+
+**Hacer obligatorio u opcional un campo:** agregar o quitar `'req'=>true`.
+
+**Cambiar el nombre visible:** cambiar `'label'`.
+
+**Agregar una tabla nueva** (por ejemplo, `descuentos`): `CREATE TABLE` en MySQL y un bloque nuevo en `modulos.php` con su `grupo`. El menú, listado, formulario y borrado funcionan sin tocar nada más.
+
+**Cambiar un tipo de campo:** por ejemplo, de `text` a `textarea`. Se cambia el `'tipo'`.
+
+## 7. Limitaciones
+
+Un profe atento puede preguntar esto, y es mejor que lo digas vos:
+
+- **El total del pedido no se calcula solo.** Se escribe a mano en `pedidos`, y no se suma desde `detalle_pedido`.
+- **El stock no baja** cuando se vende algo.
+- **El CRUD de pedidos** está separado de sus detalles: se carga el pedido y después los renglones, no todo en una pantalla.
+
+Todo esto se puede mejorar (cálculo automático del total, descuento de stock, pedido con renglones en una sola pantalla). Si el profe lo menciona, tienes la respuesta lista: "Es una mejora posible", y yo puedo implementarla si querés.
+
+## 8. Una advertencia sobre la defensa
+
+Como el CRUD es genérico, el profe no va a ver un archivo `editar_productos.php` como en los ejemplos de clase. Si te pide "mostrame dónde se edita", la respuesta es: **`form.php` muestra el formulario con los datos cargados y `guardar.php` hace el UPDATE**. Practicá explicarlo con tus palabras. Si querés, te armo una versión con archivos separados por tabla, más parecida al estilo de clase, aunque sea más larga y repetitiva.
+
+Cuando quieras, pasame las indicaciones para la presentación del modelo de negocio. Si te sirve, antes puedo hacerte una ronda de preguntas tipo examen sobre el sistema para practicar la defensa.

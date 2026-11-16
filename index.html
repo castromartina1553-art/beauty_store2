@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ingresar | Beauty Store</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500&family=Poppins:wght@200;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+  <link href="css/backend.css" rel="stylesheet">
+</head>
+<body>
+  <div class="login-page">
+    <div class="container">
+      <div class="row g-5 align-items-center">
+        <div class="col-lg-6 text-center text-lg-start">
+          <h3 class="fw-light text-white">Sistema de gestión</h3>
+          <h1 class="display-4 text-white">Beauty <span class="fw-light text-dark">Store</span></h1>
+          <p class="text-white mb-4">Administrá productos, clientes, pedidos y usuarios de tu tienda de maquillaje.</p>
+          <img class="img-fluid d-none d-lg-block" style="max-height:320px" src="img/Logotipo.png" alt="">
+        </div>
+        <div class="col-lg-5 offset-lg-1">
+          <div class="card">
+            <div class="card-body p-4 p-md-5">
+              <h3 class="mb-4 text-dark"><i class="fas fa-lock text-primary"></i> Iniciar sesión</h3>
+              <form action="login-usuario.php" method="post">
+                <div class="mb-3">
+                  <label class="form-label" for="usuario">Usuario</label>
+                  <input type="text" class="form-control" id="usuario" name="usuario" placeholder="Usuario" required autofocus>
+                </div>
+                <div class="mb-4">
+                  <label class="form-label" for="clave">Clave</label>
+                  <input type="password" class="form-control" id="clave" name="clave" placeholder="Clave" required>
+                </div>
+                <div class="d-grid">
+                  <button type="submit" class="btn btn-primary py-2">Ingresar</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
