@@ -2,22 +2,27 @@
 session_start();
 include("conexion.php");
 
-$usuario = trim($_POST['usuario'] ?? '');
-$clave   = $_POST['clave'] ?? '';
+if (isset($_POST['usuario']) && isset($_POST['clave'])) {
+    $usuario = $_POST['usuario'];
+    $clave = $_POST['clave'];
 
-$stmt = $conexion->prepare("SELECT id, nombre, usuario, clave, tipo_usuario_id FROM usuarios WHERE usuario = ? LIMIT 1");
-$stmt->bind_param("s", $usuario);
-$stmt->execute();
-$reg = $stmt->get_result()->fetch_assoc();
+    $query = "SELECT * FROM usuarios WHERE usuario = '$usuario' AND clave = '$clave'";
+    $result = mysqli_query($conexion, $query);
 
-if ($reg && password_verify($clave, $reg['clave'])) {
-    session_regenerate_id(true);
-    $_SESSION['id']      = $reg['id'];
-    $_SESSION['usuario'] = $reg['usuario'];
-    $_SESSION['nombre']  = $reg['nombre'];
-    $_SESSION['tipo']    = (int)$reg['tipo_usuario_id'];
-    $_SESSION['csrf']    = bin2hex(random_bytes(16));
-    echo "<script>alert('Bienvenido.');window.location='dashboard.php';</script>";
-} else {
-    echo "<script>alert('Usuario o clave incorrectos. Intente de nuevo.');window.location='index.html';</script>";
+    if (mysqli_num_rows($result) == 1) {
+        $row = mysqli_fetch_array($result);
+        $_SESSION['usuario'] = $row['usuario'];
+        $_SESSION['id'] = $row['id'];
+        $_SESSION['tipo_usuario_id'] = $row['tipo_usuario_id'];
+        header("Location: listado_categorias.php");
+        exit();
+    } else {
+        ?>
+        <script>
+            alert("Usuario o contraseña incorrectos");
+            window.location = "index.html";
+        </script>
+        <?php
+    }
 }
+?>
