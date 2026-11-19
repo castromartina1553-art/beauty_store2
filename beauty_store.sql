@@ -1,11 +1,3 @@
--- Base de datos Beauty Store (tienda de maquillaje)
-CREATE DATABASE IF NOT EXISTS beauty_store CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE beauty_store;
-
--- Reinicio limpio: elimina las tablas si ya existían (no usa DROP DATABASE)
-SET FOREIGN_KEY_CHECKS = 0;
-DROP TABLE IF EXISTS detalle_pedido, pedidos, clientes, productos, proveedores, marcas, categorias, usuarios, tipos_usuarios;
-SET FOREIGN_KEY_CHECKS = 1;
 
 CREATE TABLE tipos_usuarios (
   id INT AUTO_INCREMENT PRIMARY KEY,
