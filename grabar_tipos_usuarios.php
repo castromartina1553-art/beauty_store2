@@ -1,5 +1,11 @@
 <?php include("session.php")?>
 <?php include("conexion.php")?>
+<?php
+if(!isset($_SESSION['tipo_usuario_id']) || $_SESSION['tipo_usuario_id'] != 1){
+    echo '<script>alert("Acceso denegado: solo para Administradores."); window.location = "dashboard.php";</script>';
+    exit();
+}
+?>
 <?php 
 
 if (isset($_POST['guardar_registro'])){

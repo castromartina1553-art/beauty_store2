@@ -56,14 +56,14 @@
         <ul class="list-unstyled">
           <li class="dropdown pc-h-item header-user-profile">
             <a class="pc-head-link dropdown-toggle arrow-none me-0" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="false" data-bs-auto-close="outside" aria-expanded="false">
-              <span>Admin</span>
+              <span><?php echo $_SESSION['usuario']; ?></span>
             </a>
             <div class="dropdown-menu dropdown-user-profile dropdown-menu-end pc-h-dropdown">
               <div class="dropdown-header">
                 <div class="d-flex mb-1">
                   <div class="flex-grow-1 ms-3">
                     <h6 class="mb-1">Beauty Store</h6>
-                    <span>Administrador</span>
+                    <span><?php echo $_SESSION['usuario']; ?></span>
                   </div>
                   <a href="salir.php" class="pc-head-link bg-transparent"><i class="ti ti-power text-danger"></i></a>
                 </div>
@@ -71,7 +71,7 @@
               <div class="tab-content">
                 <a href="salir.php" class="dropdown-item">
                   <i class="ti ti-power"></i>
-                  <span>Logout</span>
+                  <span>Salir</span>
                 </a>
               </div>
             </div>

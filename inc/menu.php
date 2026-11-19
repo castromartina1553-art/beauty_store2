@@ -11,10 +11,14 @@
   <li class="pc-item dropdown">
     <a class="pc-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Usuarios</a>
     <ul class="dropdown-menu">
+      <?php if(isset($_SESSION['tipo_usuario_id']) && $_SESSION['tipo_usuario_id'] == 1){ ?>
       <li><a class="dropdown-item" href="listado_usuarios.php">Usuarios</a></li>
+      <?php } ?>
       <li><a class="dropdown-item" href="listado_proveedores.php">Proveedores</a></li>
       <li><a class="dropdown-item" href="listado_clientes.php">Clientes</a></li>
+      <?php if(isset($_SESSION['tipo_usuario_id']) && $_SESSION['tipo_usuario_id'] == 1){ ?>
       <li><a class="dropdown-item" href="listado_tipos_usuarios.php">Tipos de usuario</a></li>
+      <?php } ?>
     </ul>
   </li>
   <li class="pc-item dropdown">

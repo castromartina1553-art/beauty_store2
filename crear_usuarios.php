@@ -1,5 +1,11 @@
 <?php include("session.php")?>
 <?php include("conexion.php")?>
+<?php
+if(!isset($_SESSION['tipo_usuario_id']) || $_SESSION['tipo_usuario_id'] != 1){
+    echo '<script>alert("Acceso denegado: solo para Administradores."); window.location = "dashboard.php";</script>';
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -53,7 +59,7 @@
         <ul class="list-unstyled">
           <li class="dropdown pc-h-item header-user-profile">
             <a class="pc-head-link dropdown-toggle arrow-none me-0" data-bs-toggle="dropdown" href="#" role="button">
-              <span>Admin</span>
+              <span><?php echo $_SESSION['usuario']; ?></span>
             </a>
             <div class="dropdown-menu dropdown-user-profile dropdown-menu-end pc-h-dropdown">
               <a href="salir.php" class="dropdown-item"><i class="ti ti-power"></i><span>Logout</span></a>

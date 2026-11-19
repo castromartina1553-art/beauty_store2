@@ -52,10 +52,10 @@
         <ul class="list-unstyled">
           <li class="dropdown pc-h-item header-user-profile">
             <a class="pc-head-link dropdown-toggle arrow-none me-0" data-bs-toggle="dropdown" href="#" role="button">
-              <span>Admin</span>
+              <span><?php echo $_SESSION['usuario']; ?></span>
             </a>
             <div class="dropdown-menu dropdown-user-profile dropdown-menu-end pc-h-dropdown">
-              <a href="salir.php" class="dropdown-item"><i class="ti ti-power"></i><span>Logout</span></a>
+              <a href="salir.php" class="dropdown-item"><i class="ti ti-power"></i><span>Salir</span></a>
             </div>
           </li>
         </ul>
